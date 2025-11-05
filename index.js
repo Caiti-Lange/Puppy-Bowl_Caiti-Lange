@@ -6,7 +6,7 @@ const API = BASE + COHORT;
 // === State ===
 let puppies = [];
 let teams = [];
-let selectedPuppy = {};
+let selectedPuppy = null;
 
 /** Get all players */
 const getPuppies = async () => {
@@ -19,14 +19,12 @@ const getPuppies = async () => {
   }
 };
 
-getPuppies();
-
 /** Get a player by ID */
 const getPlayerId = async (id) => {
   try {
     const res = await fetch(`${API}/players/${id}`);
     const result = await res.json();
-    selectedPuppy = result;
+    selectedPuppy = result.data.player;
   } catch (err) {
     console.log("error");
   }
@@ -105,33 +103,68 @@ function PuppyList() {
   const $ul = document.createElement("ul");
   $ul.classList.add("PuppyRoster")
 
-  const puppies = puppies.map((puppy) => PuppyListItem(puppy));
-  $ul.replaceChildren(...puppies);
+  const renderedPuppies = puppies.map((puppy) => PuppyListItem(puppy));
+  $ul.replaceChildren(...renderedPuppies);
 
   return $ul;
 }
 
 /** Detailed information about the selected player */
-function PuppyDetails(puppy) {
-  if (!selectedPuppy) {
-    const p = document.createElement("p");
-    p.textcontent = "Please select a player to learn more.";
-    return p;
-  }
+function PuppyDetails() {
+   const puppy = document.querySelector("PuppyDetails")
 
-  const puppy = document.querySelector("selected");
+  if (selectedPuppy) {
   puppy.classList.add("puppy");
   console.log("PLAYER DETAILS", puppy);
+  console.log(selectedPuppy)
   puppy.innerHTML = `
-    <h3>${puppy.name} #${puppy.id}</h3>
-    <p>${puppy.decription}</p>
+    <h3>${selectedPuppy.name} #${selectedPuppy.id}</h3>
+    <img src="${selectedPuppy.imageUrl}" width=250></img>
+    <h4>${selectedPuppy.status}</h4>
+    <p>${selectedPuppy.breed}</p>
     <button>RemovePlayer</button>
   `;
 
   return puppy;
+  }
+
 }
 
-function NewPuppyForm()
+function NewPuppyForm() {
+  const $form = document.createElement("form");
+  $form.innerHTML = `
+    <label>
+      Player Name
+      <input name="name" required />
+    </label>
+    <label>
+      Player ID Number
+      <input name="ID" required />
+    </label>
+    <label>
+      Status
+      <input name="Status" required />
+    </label>
+    <label>
+      Breed
+      <input name="Breed" required />
+    </label>
+    <button>Add party</button>
+  `;
+  $form.addEventListener("submit", (newPlayer) => {
+    newPlayer.preventDefault();
+    const data = new FormData($form);
+    addParty({
+      name: data.get("name"),
+      ID: data.get("ID"),
+      Status: data.get("Status"),
+      Breed: data.get("Breed"),
+    });
+  });
+
+  return $form;
+}
+
 
 // === Render ===
 
@@ -144,11 +177,13 @@ function render() {
         <h2>Player Roster</h2>
         <PuppyList></PuppyList>
         <h3>Add a New Player</h3>
-        <NewPlayerForm></NewPlayerForm>
+      
       </section>
       <section id="selected">
         <h2>Puppy Details</h2>
         <PuppyDetails></PuppyDetails>
+        <p>Please select a player to learn more.</p>
+       
       </section>
     </main>
   `;
@@ -158,7 +193,7 @@ function render() {
 }
 
 async function init() {
-  await getParties();
+  await getPuppies();
   render();
 }
 
