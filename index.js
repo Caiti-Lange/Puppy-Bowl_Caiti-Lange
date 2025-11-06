@@ -37,7 +37,7 @@ getPlayerId();
  */
 const addPlayer = async (player) => {
   try {
-    await fetch(API, {
+    await fetch(API + "/players", {
       method: "POST",
       headers: { "Content-Type": "aplication/json" },
       body: JSON.stringify(player),
@@ -47,7 +47,7 @@ const addPlayer = async (player) => {
   }
 };
 
-addPlayer();
+//addPlayer();
 
 /** Remove a player by ID
  * @param {string | number} id
@@ -138,27 +138,17 @@ function NewPuppyForm() {
       <input name="name" required />
     </label>
     <label>
-      Player ID Number
-      <input name="ID" required />
-    </label>
-    <label>
-      Status
-      <input name="Status" required />
-    </label>
-    <label>
       Breed
-      <input name="Breed" required />
+      <input name="breed" required />
     </label>
     <button>Add party</button>
   `;
   $form.addEventListener("submit", (newPlayer) => {
     newPlayer.preventDefault();
     const data = new FormData($form);
-    addParty({
+    addPlayer({
       name: data.get("name"),
-      ID: data.get("ID"),
-      Status: data.get("Status"),
-      Breed: data.get("Breed"),
+      breed: data.get("breed"),
     });
   });
 
@@ -177,7 +167,7 @@ function render() {
         <h2>Player Roster</h2>
         <PuppyList></PuppyList>
         <h3>Add a New Player</h3>
-      
+        <NewPlayerForm></NewPlayerForm>
       </section>
       <section id="selected">
         <h2>Puppy Details</h2>
@@ -188,7 +178,7 @@ function render() {
     </main>
   `;
   $app.querySelector("PuppyList").replaceWith(PuppyList());
-  $app.querySelector("NewPlayerForm").replaceWith(NewPlayerForm());
+  $app.querySelector("NewPlayerForm").replaceWith(NewPuppyForm());
   $app.querySelector("PuppyDetails").replaceWith(PuppyDetails());
 }
 
